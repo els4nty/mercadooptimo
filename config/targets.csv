@@ -1,6 +1,9 @@
-# store,product_id,url,units_per_pack
+# store,product_id,url,units_per_pack,sku
 # units_per_pack = cuántas unidades del catálogo trae el empaque (arroz 5 kg -> 5, porque el catálogo es 1 kg).
-# Solo páginas de producto (/nombre/p). No poner buscadores ni categorías (los robots.txt lo piden).
-store,product_id,url,units_per_pack
-jumbo,arroz,https://www.jumbocolombia.com/arroz-diana-x-5-kg/p,5
-olimpica,arroz,https://www.olimpica.com/arroz-diana-5-kg-7702511000045-566554/p,5
+# Solo páginas de producto (/nombre/p) o listados de categoría. Nada de buscadores (/busca, /search) ni ?page=.
+# sku vacío  -> la URL es una página de producto (Olímpica).
+# sku lleno  -> la URL es un listado y se busca ese SKU entre sus productos (Jumbo).
+store,product_id,url,units_per_pack,sku
+olimpica,arroz,https://www.olimpica.com/arroz-diana-5-kg-7702511000045-566554/p,5,
+jumbo,arroz,https://www.jumbocolombia.com/co/supermercado/despensa,5,13396
+jumbo,lenteja,https://www.jumbocolombia.com/co/supermercado/despensa,1,85308

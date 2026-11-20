@@ -78,3 +78,35 @@ def test_load_targets_valida_catalogo(tmp_path):
     with pytest.raises(ValueError):
         load_targets(f)
     assert len(load_targets("config/targets.csv")) >= 2
+
+
+CAT = "https://www.jumbocolombia.com/co/supermercado/despensa"
+
+
+class CountingSession(Session):
+    def __init__(self, pages):
+        super().__init__(pages)
+        self.fetched = []
+
+    def get(self, url, timeout=None):
+        if not url.endswith("/robots.txt"):
+            self.fetched.append(url)
+        return super().get(url, timeout)
+
+
+def test_listado_busca_por_sku_y_descarga_la_url_una_vez():
+    targets = pd.DataFrame([
+        {"store": "jumbo", "product_id": "arroz", "url": CAT, "units_per_pack": 5, "sku": "13396"},
+        {"store": "jumbo", "product_id": "lenteja", "url": CAT, "units_per_pack": 1, "sku": "85308"},
+        {"store": "jumbo", "product_id": "aceite", "url": CAT, "units_per_pack": 1, "sku": "999999"},
+    ])
+    session = CountingSession({CAT: read("jumbo_categoria.html")})
+    df = ProductPageScraper("jumbo", targets, session=session, delay=0).scrape()
+    prices = dict(zip(df.product_id, df.price))
+    assert prices == {"arroz": pytest.approx(16890 / 5), "lenteja": 3490.0}  # aceite: SKU ausente
+    assert session.fetched == [CAT]
+
+
+def test_load_targets_con_sku_como_texto():
+    t = load_targets("config/targets.csv")
+    assert t.sku.dropna().map(type).eq(str).all()
