@@ -15,8 +15,8 @@ from mercadooptimo.pipeline import recommend
 
 DB_PATH = Path(__file__).resolve().parents[1] / "data" / "precios.db"
 
-st.set_page_config(page_title="MercadoÓptimo", page_icon="🛒", layout="wide")
-st.title("🛒 MercadoÓptimo")
+st.set_page_config(page_title="MercadoÓptimo", layout="wide")
+st.title("MercadoÓptimo")
 st.caption("Recomendación de compra de menor costo esperado dentro de su presupuesto.")
 
 

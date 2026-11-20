@@ -63,6 +63,12 @@ def cmd_load_sipsa(args):
     print(f"{n} precios SIPSA guardados en {args.db}")
 
 
+def cmd_check_robots(args):
+    from mercadooptimo.data.scrapers.robots_check import run
+
+    run(args.out)
+
+
 def cmd_eval_forecast(args):
     from mercadooptimo.forecasting.evaluation import compare_models, summarize
 
@@ -122,6 +128,10 @@ def main(argv=None):
     s = sub.add_parser("load-sipsa", help="importa un archivo SIPSA descargado del DANE")
     s.add_argument("file")
     s.set_defaults(func=cmd_load_sipsa)
+
+    s = sub.add_parser("check-robots", help="revisa el robots.txt de las cadenas candidatas")
+    s.add_argument("--out", help="guarda el reporte en un archivo .md")
+    s.set_defaults(func=cmd_check_robots)
 
     s = sub.add_parser("evaluate-forecast", help="RMSE/MAPE de los modelos con partición temporal")
     s.add_argument("--models", nargs="+", default=["naive", "seasonal_naive", "arima"])
