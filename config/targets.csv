@@ -1,0 +1,6 @@
+# store,product_id,url,units_per_pack
+# units_per_pack = cuántas unidades del catálogo trae el empaque (arroz 5 kg -> 5, porque el catálogo es 1 kg).
+# Solo páginas de producto (/nombre/p). No poner buscadores ni categorías (los robots.txt lo piden).
+store,product_id,url,units_per_pack
+jumbo,arroz,https://www.jumbocolombia.com/arroz-diana-x-5-kg/p,5
+olimpica,arroz,https://www.olimpica.com/arroz-diana-5-kg-7702511000045-566554/p,5

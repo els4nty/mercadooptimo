@@ -69,6 +69,20 @@ def cmd_check_robots(args):
     run(args.out)
 
 
+def cmd_scrape(args):
+    from mercadooptimo.data.scrapers.vtex import ProductPageScraper, load_targets
+
+    targets = load_targets(args.targets)
+    stores = args.stores or sorted(targets.store.unique())
+    frames = [ProductPageScraper(s, targets, delay=args.delay).scrape() for s in stores]
+    df = pd.concat(frames, ignore_index=True)
+    print(df.to_string(index=False) if not df.empty else "No se obtuvo ningún precio.")
+    if args.dry_run or df.empty:
+        return
+    n = db.save_prices(db.connect(args.db), df)
+    print(f"{n} precios guardados en {args.db}")
+
+
 def cmd_eval_forecast(args):
     from mercadooptimo.forecasting.evaluation import compare_models, summarize
 
@@ -132,6 +146,13 @@ def main(argv=None):
     s = sub.add_parser("check-robots", help="revisa el robots.txt de las cadenas candidatas")
     s.add_argument("--out", help="guarda el reporte en un archivo .md")
     s.set_defaults(func=cmd_check_robots)
+
+    s = sub.add_parser("scrape", help="descarga precios de las páginas de producto de config/targets.csv")
+    s.add_argument("--targets", default="config/targets.csv")
+    s.add_argument("--stores", nargs="*", help="jumbo olimpica (por defecto, todas las del archivo)")
+    s.add_argument("--delay", type=float, default=3.0, help="segundos entre peticiones")
+    s.add_argument("--dry-run", action="store_true", help="muestra los precios sin guardarlos")
+    s.set_defaults(func=cmd_scrape)
 
     s = sub.add_parser("evaluate-forecast", help="RMSE/MAPE de los modelos con partición temporal")
     s.add_argument("--models", nargs="+", default=["naive", "seasonal_naive", "arima"])
