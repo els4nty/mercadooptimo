@@ -1,0 +1,53 @@
+# Generado por `mercadooptimo discover`. Puede editarse a mano.
+# Jumbo: url = categoría (sin parámetros) y sku = producto dentro del listado.
+# Olímpica: url = página del producto (/nombre/p) y sku vacío.
+# Cada producto es un EAN concreto (misma marca y presentación en ambas tiendas): units_per_pack = 1.
+store,product_id,url,units_per_pack,sku
+jumbo,ean_7702511000748,https://www.jumbocolombia.com/co/supermercado/despensa/arroz-y-granos,1,13410
+olimpica,ean_7702511000748,https://www.olimpica.com/arroz-diana-premiun-2-5-kg-7702511000748-1515360/p,1,
+jumbo,ean_7702511000205,https://www.jumbocolombia.com/co/supermercado/despensa/arroz-y-granos,1,13397
+olimpica,ean_7702511000205,https://www.olimpica.com/arroz-diana-10-kg-7702511000205-518238/p,1,
+jumbo,ean_7702511000052,https://www.jumbocolombia.com/co/supermercado/despensa/arroz-y-granos,1,295180
+olimpica,ean_7702511000052,https://www.olimpica.com/arroz-diana-paca-25-und-12-500-g/p,1,
+jumbo,ean_7702511000038,https://www.jumbocolombia.com/co/supermercado/despensa/arroz-y-granos,1,13395
+olimpica,ean_7702511000038,https://www.olimpica.com/arroz-diana-3-kg-7702511000038-518233/p,1,
+jumbo,ean_7702511000045,https://www.jumbocolombia.com/co/supermercado/despensa/arroz-y-granos,1,13396
+olimpica,ean_7702511000045,https://www.olimpica.com/arroz-diana-5-kg-7702511000045-566554/p,1,
+jumbo,ean_7702367000558,https://www.jumbocolombia.com/co/supermercado/despensa/enlatados-y-conservas,1,21395
+olimpica,ean_7702367000558,https://www.olimpica.com/atun-van-camp-s-agua-3x80g/p,1,
+jumbo,ean_7702367003511,https://www.jumbocolombia.com/co/supermercado/despensa/enlatados-y-conservas,1,21379
+olimpica,ean_7702367003511,https://www.olimpica.com/atun-van-camp-s-aceite-oliva-160g/p,1,
+jumbo,ean_7702406000143,https://www.jumbocolombia.com/co/supermercado/despensa/azucar-endulzantes-y-panelas,1,20697
+olimpica,ean_7702406000143,https://www.olimpica.com/azucar-manuelita-1-kg/p,1,
+jumbo,ean_7702406000150,https://www.jumbocolombia.com/co/supermercado/despensa/azucar-endulzantes-y-panelas,1,20696
+olimpica,ean_7702406000150,https://www.olimpica.com/azucar-manuelita-poliet-2-5-kg/p,1,
+jumbo,ean_7702406090335,https://www.jumbocolombia.com/co/supermercado/despensa/azucar-endulzantes-y-panelas,1,20717
+olimpica,ean_7702406090335,https://www.olimpica.com/azucar-manuelita-morena-1-kg/p,1,
+jumbo,ean_7702406090328,https://www.jumbocolombia.com/co/supermercado/despensa/azucar-endulzantes-y-panelas,1,20718
+olimpica,ean_7702406090328,https://www.olimpica.com/azucar-manuelita-morena-2-5-kg/p,1,
+jumbo,ean_7707007200466,https://www.jumbocolombia.com/co/supermercado/despensa/azucar-endulzantes-y-panelas,1,20705
+olimpica,ean_7707007200466,https://www.olimpica.com/azucar-mayaguez-bca-2-5kg/p,1,
+jumbo,ean_7707007200411,https://www.jumbocolombia.com/co/supermercado/despensa/azucar-endulzantes-y-panelas,1,20716
+olimpica,ean_7707007200411,https://www.olimpica.com/azucar-mayaguez-morena-1kg/p,1,
+jumbo,ean_7707007200428,https://www.jumbocolombia.com/co/supermercado/despensa/azucar-endulzantes-y-panelas,1,20719
+olimpica,ean_7707007200428,https://www.olimpica.com/azucar-mayaguez-morena-2-5kg/p,1,
+jumbo,ean_7702511003251,https://www.jumbocolombia.com/co/supermercado/despensa/arroz-y-granos,1,85299
+olimpica,ean_7702511003251,https://www.olimpica.com/frijol-diana-cargamanto-rojo-500g/p,1,
+jumbo,ean_7702511002933,https://www.jumbocolombia.com/co/supermercado/despensa/arroz-y-granos,1,85308
+olimpica,ean_7702511002933,https://www.olimpica.com/lenteja-diana-500g/p,1,
+jumbo,ean_7702014601848,https://www.jumbocolombia.com/co/supermercado/despensa/enlatados-y-conservas,1,13166
+olimpica,ean_7702014601848,https://www.olimpica.com/maiz-tierno-san-jorge-2-und-190-g--7702014601848--875857/p,1,
+jumbo,ean_7702085012079,https://www.jumbocolombia.com/co/supermercado/despensa/pastas,1,13288
+olimpica,ean_7702085012079,https://www.olimpica.com/pasta-cab-angel-doria-250-g/p,1,
+jumbo,ean_7702085019023,https://www.jumbocolombia.com/co/supermercado/despensa/pastas,1,13262
+olimpica,ean_7702085019023,https://www.olimpica.com/pasta-espag-doria-clas-1-kg/p,1,
+jumbo,ean_7702085012024,https://www.jumbocolombia.com/co/supermercado/despensa/pastas,1,13264
+olimpica,ean_7702085012024,https://www.olimpica.com/pasta-espaguetti-doria-clasico-250-g/p,1,
+jumbo,ean_7702085012482,https://www.jumbocolombia.com/co/supermercado/despensa/pastas,1,13300
+olimpica,ean_7702085012482,https://www.olimpica.com/pasta-doria-tornillo-cte-250-g-7702085012482--25895/p,1,
+jumbo,ean_7702020117012,https://www.jumbocolombia.com/co/supermercado/despensa/pastas,1,21802
+olimpica,ean_7702020117012,https://www.olimpica.com/pasta-espag-la-munec-1-kg/p,1,
+jumbo,ean_7702085021149,https://www.jumbocolombia.com/co/supermercado/despensa/pastas,1,11093
+olimpica,ean_7702085021149,https://www.olimpica.com/pasta-penne-rigate-monticella-500-g/p,1,
+jumbo,ean_7702085243022,https://www.jumbocolombia.com/co/supermercado/despensa/pastas,1,13271
+olimpica,ean_7702085243022,https://www.olimpica.com/pasta-espaguetti-monticello-prem-500-g/p,1,

@@ -15,7 +15,7 @@ import sys
 
 import pandas as pd
 
-from mercadooptimo.catalog import PRODUCTS, PRODUCTS_BY_ID
+from mercadooptimo.catalog import ALL_PRODUCTS, PRODUCTS_BY_ID
 from mercadooptimo.data import db
 from mercadooptimo.data.synthetic import generate_prices
 
@@ -24,9 +24,13 @@ DEFAULT_BASKET = {"res_molida": 2, "pollo_pechuga": 1, "huevos": 1, "arroz": 2, 
                   "leche": 4, "aceite": 1, "tomate": 1, "cebolla": 1}
 
 
-def _parse_items(items: list[str] | None) -> dict[str, int]:
+def _parse_items(items: list[str] | None, available: set[str] | None = None) -> dict[str, int]:
     if not items:
-        return dict(DEFAULT_BASKET)
+        basket = {k: v for k, v in DEFAULT_BASKET.items() if available is None or k in available}
+        if not basket:
+            sys.exit("La cesta por defecto no existe en estos datos. Indique productos con --item id=cantidad "
+                     "(ids en `mercadooptimo products`).")
+        return basket
     out = {}
     for it in items:
         pid, _, qty = it.partition("=")
@@ -45,8 +49,8 @@ def _wide(args) -> pd.DataFrame:
 
 
 def cmd_products(args):
-    for p in PRODUCTS:
-        print(f"{p.id:15s} {p.name:25s} {p.unit:8s} {p.category}")
+    for p in ALL_PRODUCTS:
+        print(f"{p.id:22s} {p.name[:44]:44s} {p.unit:8s} {p.category}")
 
 
 def cmd_seed(args):
@@ -61,6 +65,43 @@ def cmd_load_sipsa(args):
     conn = db.connect(args.db)
     n = db.save_prices(conn, load_sipsa_file(args.file))
     print(f"{n} precios SIPSA guardados en {args.db}")
+
+
+def cmd_check_robots(args):
+    from mercadooptimo.data.scrapers.robots_check import run
+
+    run(args.out)
+
+
+def cmd_discover(args):
+    from mercadooptimo.data import discover
+
+    jumbo = [discover.read_listing(f, "jumbo") for f in discover.expand(args.jumbo)]
+    olimpica = [discover.read_listing(f, "olimpica") for f in discover.expand(args.olimpica)]
+    d = discover.build(jumbo, olimpica)
+    print("\n".join(d.notes))
+    print(f"\n{len(d.catalog)} productos idénticos en ambas tiendas:")
+    for r in d.catalog:
+        print(f"  {r['ean']}  {r['name'][:52]:52s} {r['unit']:8s} {r['category']}")
+    if args.write:
+        cat, tgt = discover.write(d, args.out_dir)
+        print(f"\nEscrito: {cat} y {tgt}")
+    else:
+        print("\n(Vista previa. Agregue --write para guardar config/catalog.csv y config/targets.csv)")
+
+
+def cmd_scrape(args):
+    from mercadooptimo.data.scrapers.vtex import ProductPageScraper, load_targets
+
+    targets = load_targets(args.targets)
+    stores = args.stores or sorted(targets.store.unique())
+    frames = [ProductPageScraper(s, targets, delay=args.delay).scrape() for s in stores]
+    df = pd.concat(frames, ignore_index=True)
+    print(df.to_string(index=False) if not df.empty else "No se obtuvo ningún precio.")
+    if args.dry_run or df.empty:
+        return
+    n = db.save_prices(db.connect(args.db), df)
+    print(f"{n} precios guardados en {args.db}")
 
 
 def cmd_eval_forecast(args):
@@ -80,8 +121,9 @@ def cmd_eval_forecast(args):
 def cmd_recommend(args):
     from mercadooptimo.pipeline import recommend
 
-    demands = _parse_items(args.item)
-    result, _, summary = recommend(_wide(args), demands, args.budget, model=args.model,
+    wide = _wide(args)
+    demands = _parse_items(args.item, set(wide.columns.get_level_values(0)))
+    result, _, summary = recommend(wide, demands, args.budget, model=args.model,
                                    max_stores=args.max_stores, reference_store=args.reference_store)
     print(f"Estado: {result.status}  (modelo {result.model}, {result.solve_seconds:.3f} s)")
     plan = result.plan.assign(producto=result.plan.product_id.map(lambda i: PRODUCTS_BY_ID[i].name))
@@ -122,6 +164,24 @@ def main(argv=None):
     s = sub.add_parser("load-sipsa", help="importa un archivo SIPSA descargado del DANE")
     s.add_argument("file")
     s.set_defaults(func=cmd_load_sipsa)
+
+    s = sub.add_parser("check-robots", help="revisa el robots.txt de las cadenas candidatas")
+    s.add_argument("--out", help="guarda el reporte en un archivo .md")
+    s.set_defaults(func=cmd_check_robots)
+
+    s = sub.add_parser("discover", help="cruza por EAN los productos de Jumbo y Olímpica a partir de HTML guardados")
+    s.add_argument("--jumbo", nargs="+", required=True, help="HTML de categorías de Jumbo (admite comodines)")
+    s.add_argument("--olimpica", nargs="+", required=True, help="HTML de listados de Olímpica (admite comodines)")
+    s.add_argument("--out-dir", default="config")
+    s.add_argument("--write", action="store_true", help="guarda catalog.csv y targets.csv")
+    s.set_defaults(func=cmd_discover)
+
+    s = sub.add_parser("scrape", help="descarga precios de las páginas de producto de config/targets.csv")
+    s.add_argument("--targets", default="config/targets.csv")
+    s.add_argument("--stores", nargs="*", help="jumbo olimpica (por defecto, todas las del archivo)")
+    s.add_argument("--delay", type=float, default=3.0, help="segundos entre peticiones")
+    s.add_argument("--dry-run", action="store_true", help="muestra los precios sin guardarlos")
+    s.set_defaults(func=cmd_scrape)
 
     s = sub.add_parser("evaluate-forecast", help="RMSE/MAPE de los modelos con partición temporal")
     s.add_argument("--models", nargs="+", default=["naive", "seasonal_naive", "arima"])

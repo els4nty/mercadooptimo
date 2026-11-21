@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import re
 import time
-import urllib.robotparser
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import date
@@ -25,6 +24,8 @@ from urllib.parse import urljoin, urlparse
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+
+from mercadooptimo.data.scrapers.robots import RobotsPolicy
 
 USER_AGENT = "MercadoOptimoBot/0.1 (proyecto academico)"
 
@@ -36,21 +37,28 @@ class StoreScraper(ABC):
         self.delay = delay
         self.session = session or requests.Session()
         self.session.headers["User-Agent"] = USER_AGENT
-        self._robots: dict[str, urllib.robotparser.RobotFileParser] = {}
+        self._robots: dict[str, RobotsPolicy] = {}
         self._last_request = 0.0
 
     def allowed(self, url: str) -> bool:
         parts = urlparse(url)
         root = f"{parts.scheme}://{parts.netloc}"
         if root not in self._robots:
-            rp = urllib.robotparser.RobotFileParser()
             try:
                 resp = self.session.get(urljoin(root, "/robots.txt"), timeout=10)
-                rp.parse(resp.text.splitlines() if resp.ok else [])
             except requests.RequestException:
-                rp.parse([])
-            self._robots[root] = rp
-        return self._robots[root].can_fetch(USER_AGENT, url)
+                # Sin respuesta no sabemos qué permite el sitio: no se descarga nada.
+                policy = RobotsPolicy.deny_all(USER_AGENT)
+            else:
+                if resp.ok:
+                    policy = RobotsPolicy(resp.content.decode("utf-8", errors="replace"), USER_AGENT)
+                elif resp.status_code in (404, 410):
+                    policy = RobotsPolicy.allow_all(USER_AGENT)  # no publica robots.txt
+                else:
+                    # 401/403/5xx: acceso denegado o sitio caído; ser conservador.
+                    policy = RobotsPolicy.deny_all(USER_AGENT)
+            self._robots[root] = policy
+        return self._robots[root].can_fetch(url)
 
     def fetch_html(self, url: str) -> str:
         if not self.allowed(url):
