@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from mercadooptimo.catalog import PRODUCTS, PRODUCTS_BY_ID
+from mercadooptimo.catalog import PRODUCTS_BY_ID
 from mercadooptimo.data import db
 from mercadooptimo.data.synthetic import generate_prices
 from mercadooptimo.pipeline import recommend
@@ -31,6 +31,7 @@ def load_wide(path: str) -> pd.DataFrame:
 
 
 wide = load_wide(str(DB_PATH))
+PRODUCTS = [PRODUCTS_BY_ID[i] for i in dict.fromkeys(wide.columns.get_level_values(0)) if i in PRODUCTS_BY_ID]
 sources = "sintéticos (desarrollo)" if "synthetic" in str(db.load_prices(db.connect(DB_PATH)).source.unique()) else "reales"
 st.sidebar.info(f"Datos: precios {sources} · {len(wide)} semanas · última: {wide.index[-1]:%Y-%m-%d}")
 

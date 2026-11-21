@@ -4,7 +4,10 @@ Los identificadores se usan como llave en la base de datos. Las tiendas son
 nombres genéricos hasta que se definan las cadenas reales a recolectar.
 """
 
+import csv
+import os
 from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -13,7 +16,8 @@ class Product:
     name: str
     unit: str
     category: str  # "proteina" | "canasta"
-    base_price: float  # precio de referencia en COP, usado solo por el generador sintético
+    base_price: float = 0.0  # precio de referencia en COP, usado solo por el generador sintético
+    ean: str | None = None  # código de barras: identifica el mismo producto físico en todas las tiendas
 
 
 PRODUCTS: list[Product] = [
@@ -37,4 +41,21 @@ PRODUCTS: list[Product] = [
 
 STORES: list[str] = ["tienda_a", "tienda_b", "tienda_c", "tienda_d"]
 
-PRODUCTS_BY_ID = {p.id: p for p in PRODUCTS}
+# Catálogo de productos concretos (marca + presentación), uno por código de barras (EAN).
+# Lo genera `mercadooptimo discover` a partir de las páginas de las cadenas y vive en
+# config/catalog.csv. Los PRODUCTS genéricos de arriba solo alimentan el generador sintético.
+CATALOG_CSV = Path(os.environ.get("MERCADOOPTIMO_CATALOG", Path(__file__).resolve().parents[2] / "config" / "catalog.csv"))
+
+
+def load_catalog(path: str | Path = CATALOG_CSV) -> list[Product]:
+    path = Path(path)
+    if not path.exists():
+        return []
+    with path.open(encoding="utf-8", newline="") as fh:
+        return [Product(id=r["product_id"], name=r["name"], unit=r["unit"], category=r["category"], ean=r["ean"] or None)
+                for r in csv.DictReader(fh)]
+
+
+REAL_PRODUCTS: list[Product] = load_catalog()
+ALL_PRODUCTS: list[Product] = PRODUCTS + REAL_PRODUCTS
+PRODUCTS_BY_ID = {p.id: p for p in ALL_PRODUCTS}

@@ -22,6 +22,8 @@ class ProductInfo:
     price: float | None
     currency: str | None
     in_stock: bool | None
+    ean: str | None = None
+    brand: str | None = None
 
 
 def _walk(node):
@@ -56,6 +58,17 @@ def _price(offers) -> tuple[float | None, str | None, bool | None]:
     return price, offers.get("priceCurrency"), in_stock
 
 
+_EAN_IMG = re.compile(r"/(\d{8,14})(?:-\d+)?\.(?:jpe?g|png|webp)")
+
+
+def _ean_from_image(image) -> str | None:
+    """Algunas imágenes de VTEX se llaman <EAN>.jpg; sirve cuando el JSON-LD no trae gtin."""
+    if isinstance(image, list):
+        image = image[0] if image else None
+    m = _EAN_IMG.search(image or "")
+    return m.group(1) if m else None
+
+
 def parse_products(html: str) -> list[ProductInfo]:
     out: list[ProductInfo] = []
     for block in _LD_RE.findall(html):
@@ -65,5 +78,8 @@ def parse_products(html: str) -> list[ProductInfo]:
             continue
         for p in _walk(data):
             price, cur, stock = _price(p.get("offers"))
-            out.append(ProductInfo(p.get("name", ""), p.get("sku"), p.get("url") or p.get("@id"), price, cur, stock))
+            brand = p.get("brand")
+            brand = brand.get("name") if isinstance(brand, dict) else brand
+            ean = p.get("gtin13") or p.get("gtin") or _ean_from_image(p.get("image"))
+            out.append(ProductInfo(p.get("name", ""), p.get("sku"), p.get("url") or p.get("@id"), price, cur, stock, ean, brand))
     return out

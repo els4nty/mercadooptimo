@@ -25,6 +25,7 @@ import requests
 from mercadooptimo.catalog import PRODUCTS_BY_ID
 from mercadooptimo.data.scrapers.base import StoreScraper
 from mercadooptimo.data.scrapers.jsonld import parse_products
+from mercadooptimo.data.scrapers.vtex_state import parse_state_products
 
 DEFAULT_TARGETS = "config/targets.csv"
 
@@ -62,7 +63,7 @@ class ProductPageScraper(StoreScraper):
             except (requests.RequestException, PermissionError) as exc:
                 print(f"[{self.store}] {url}: {exc}")
                 continue
-            products = parse_products(html)
+            products = parse_products(html) or parse_state_products(html)
             by_sku = {p.sku: p for p in products if p.sku}
             for t in group.itertuples():
                 sku = None if pd.isna(t.sku) else str(t.sku)

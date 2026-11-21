@@ -110,3 +110,26 @@ def test_listado_busca_por_sku_y_descarga_la_url_una_vez():
 def test_load_targets_con_sku_como_texto():
     t = load_targets("config/targets.csv")
     assert t.sku.dropna().map(type).eq(str).all()
+
+
+def test_estado_olimpica_trae_ean_y_precio():
+    from mercadooptimo.data.scrapers.vtex_state import parse_state_products
+
+    (p,) = parse_state_products(read("olimpica_estado.html"))
+    assert p.ean == "7702085019023" and p.price == 7750 and p.in_stock is True
+    assert "DORIA" in p.name.upper() and p.url.endswith("/p")
+
+
+def test_estado_jumbo_usa_searchproduct():
+    from mercadooptimo.data.scrapers.vtex_state import parse_state_products
+
+    (p,) = parse_state_products(read("jumbo_estado.html"))
+    assert p.ean == "7702085019023" and p.price == 7690
+
+
+def test_mismo_ean_en_ambas_tiendas():
+    from mercadooptimo.data.scrapers.vtex_state import parse_state_products
+
+    j = parse_state_products(read("jumbo_estado.html"))[0]
+    o = parse_state_products(read("olimpica_estado.html"))[0]
+    assert j.ean == o.ean  # el cruce por código de barras identifica el mismo producto
