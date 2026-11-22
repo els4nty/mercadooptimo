@@ -32,7 +32,7 @@ class Chain:
 # Ajustar dominios/rutas si cambian. Los términos se verifican manualmente.
 CHAINS = [
     Chain("exito", "https://www.exito.com", terms_url="https://www.exito.com/terminos-condiciones"),
-    Chain("jumbo", "https://www.tiendasjumbo.co", terms_url="https://www.jumbocolombia.com/institucional/terminos-y-condiciones"),
+    Chain("jumbo", "https://www.jumbocolombia.com", terms_url="https://www.jumbocolombia.com/institucional/terminos-y-condiciones"),
     Chain("olimpica", "https://www.olimpica.com"),
     Chain("d1", "https://domicilios.tiendasd1.com"),
 ]
