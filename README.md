@@ -35,10 +35,56 @@ $$\max \sum_i w_i z_i \quad \text{s.a.} \quad \sum_s x_{is} \ge d_i z_i\ \forall
 
 ## Instalación
 
+Requiere **Python 3.10 a 3.14** (se recomienda **3.12**). Python 3.15 todavía no sirve porque
+OR-Tools y PyTorch no publican versiones para él.
+
+### macOS
+
+En Mac el comando es `python3` (no `python`). Si tu versión no está entre 3.10 y 3.14, instala
+Python 3.12 desde [python.org](https://www.python.org/downloads/release/python-31210/)
+(*macOS 64-bit universal2 installer*) o con Homebrew:
+
 ```bash
-python -m venv .venv && source .venv/bin/activate
+brew install python@3.12
+```
+
+Luego, dentro de la carpeta del proyecto:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate          # la terminal debe mostrar (.venv)
 pip install -e ".[app,dev]"
-pip install -e ".[lstm]"      # opcional: PyTorch para el modelo LSTM
+pip install -e ".[lstm]"           # opcional: PyTorch para el modelo LSTM
+streamlit run app/streamlit_app.py
+```
+
+Cada vez que abras una terminal nueva, activa el entorno antes de ejecutar:
+
+```bash
+cd mercadooptimo
+source .venv/bin/activate
+streamlit run app/streamlit_app.py
+```
+
+Si ya habías creado `.venv` con otra versión de Python, bórralo primero con
+`deactivate; rm -rf .venv`.
+
+### Windows
+
+```powershell
+py -3.12 -m venv .venv
+.venv\Scripts\activate
+pip install -e ".[app,dev]"
+pip install -e ".[lstm]"
+streamlit run app/streamlit_app.py
+```
+
+### Linux
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e ".[app,dev]"
+pip install -e ".[lstm]"
 ```
 
 ## Uso
@@ -72,11 +118,16 @@ pytest
 
 ## Interfaz
 
-`streamlit run app/streamlit_app.py` abre cuatro pestañas: **Recomendación** (presupuesto,
-productos, prioridades y límite de tiendas), **Predicción de precios** (entrena y compara
-ingenuo, ARIMA y LSTM sobre una serie, con gráfico y métricas), **Evaluación del ahorro**
-(backtest contra las líneas base A, B y el oráculo) y **Cómo funciona** (arquitectura y modelo
-matemático). El guion del video está en `docs/guion_video.md`.
+`streamlit run app/streamlit_app.py` abre la app en el navegador con cuatro pestañas:
+
+| Pestaña | Qué muestra |
+|---|---|
+| 🛒 Mi recomendación | Lista de mercado, presupuesto, prioridades y límite de tiendas → tarjetas por tienda, ahorro estimado y comparación con comprar todo en una sola tienda |
+| 📈 Predicción de precios | Entrena y compara ingenuo, ARIMA y LSTM sobre una serie, con gráfico real vs. predicción y métricas explicadas |
+| 💰 ¿Cuánto ahorro? | Simulación semana a semana contra las líneas base A, B y el oráculo |
+| ⚙️ Cómo funciona | Diagrama de arquitectura, modelo matemático y catálogo real por código de barras |
+
+Capturas en `docs/capturas/` y guion del video en `docs/guion_video.md`.
 
 ## Recolección automática
 

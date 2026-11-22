@@ -7,7 +7,7 @@ name = "mercadooptimo"
 version = "0.1.0"
 description = "Optimización del presupuesto de compra de alimentos con predicción de precios y programación lineal entera"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.15"  # OR-Tools y PyTorch aún no publican versión para 3.15
 dependencies = [
     "pandas>=2.0",
     "numpy>=1.24",
