@@ -70,6 +70,14 @@ pytest
 | Optimizador | Factibilidad, tiempo de cómputo, razón de optimalidad | `recommend`, `pytest` |
 | Ahorro | ≥ 5 % vs. línea base A y > 0 vs. línea base B | `evaluate-savings` |
 
+## Interfaz
+
+`streamlit run app/streamlit_app.py` abre cuatro pestañas: **Recomendación** (presupuesto,
+productos, prioridades y límite de tiendas), **Predicción de precios** (entrena y compara
+ingenuo, ARIMA y LSTM sobre una serie, con gráfico y métricas), **Evaluación del ahorro**
+(backtest contra las líneas base A, B y el oráculo) y **Cómo funciona** (arquitectura y modelo
+matemático). El guion del video está en `docs/guion_video.md`.
+
 ## Recolección automática
 
 El workflow `.github/workflows/scrape.yml` corre todos los días a las 6:17 a. m. (hora de

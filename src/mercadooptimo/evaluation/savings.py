@@ -28,16 +28,20 @@ def backtest_savings(
     model: str = "arima",
     reference_store: str | None = None,
     max_stores: int | None = None,
+    model_kwargs: dict | None = None,
+    progress=None,
 ) -> pd.DataFrame:
     products = list(demands)
     no_budget = 1e15  # el ahorro se mide sin restricción presupuestal activa
     records = []
     n = len(wide)
-    for t in range(n - weeks, n):
+    for k, t in enumerate(range(n - weeks, n)):
+        if progress:
+            progress(k / weeks)
         history = wide.iloc[:t]
         actual = _slice_wide(wide, t)
         yesterday = _slice_wide(wide, t - 1)
-        expected = forecast_next_prices(history, model=model, products=products)
+        expected = forecast_next_prices(history, model=model, products=products, model_kwargs=model_kwargs)
         res = optimize_basket(expected, demands, no_budget, max_stores=max_stores)
         oracle = optimize_basket(actual.stack().rename("price").reset_index(), demands, no_budget, max_stores=max_stores)
         cost_sys = plan_cost(res.plan, actual, demands)
