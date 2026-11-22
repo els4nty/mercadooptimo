@@ -8,10 +8,17 @@ from mercadooptimo.forecasting import get_forecaster
 from mercadooptimo.optimizer import OptimizationResult, optimize_basket
 
 
+MIN_HISTORY = {"arima": 20, "lstm": 42}  # semanas mínimas para usar el modelo; si no, ingenuo
+
+
 def forecast_next_prices(wide: pd.DataFrame, model: str = "arima", products: list[str] | None = None) -> pd.DataFrame:
     """Precio esperado del siguiente periodo para cada (producto, tienda).
 
-    Devuelve formato largo: product_id, store, price, last_price.
+    Con poca historia (p. ej. los primeros meses de scraping real) se usa el
+    modelo ingenuo para esa serie: un modelo estadístico entrenado con unas
+    pocas semanas no es confiable. La columna `model` indica cuál se usó.
+
+    Devuelve formato largo: product_id, store, price, last_price, model.
     """
     rows = []
     for product_id, store in wide.columns:
@@ -20,9 +27,10 @@ def forecast_next_prices(wide: pd.DataFrame, model: str = "arima", products: lis
         series = wide[(product_id, store)].dropna()
         if len(series) < 3:
             continue
-        pred = get_forecaster(model).fit(series).predict(1)[0]
-        rows.append((product_id, store, float(pred), float(series.iloc[-1])))
-    return pd.DataFrame(rows, columns=["product_id", "store", "price", "last_price"])
+        used = model if len(series) >= MIN_HISTORY.get(model, 3) else "naive"
+        pred = get_forecaster(used).fit(series).predict(1)[0]
+        rows.append((product_id, store, float(pred), float(series.iloc[-1]), used))
+    return pd.DataFrame(rows, columns=["product_id", "store", "price", "last_price", "model"])
 
 
 def recommend(

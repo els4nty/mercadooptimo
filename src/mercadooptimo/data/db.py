@@ -80,3 +80,29 @@ def to_wide(df: pd.DataFrame, freq: str = "W-MON") -> pd.DataFrame:
         .sort_index()
     )
     return wide.ffill()
+
+
+def append_csv(df: pd.DataFrame, path: str | Path) -> int:
+    """Agrega precios a un CSV de historial (versionable en git), sin duplicados.
+
+    Devuelve el número de filas nuevas.
+    """
+    path = Path(path)
+    new = df[COLUMNS].copy()
+    new["date"] = pd.to_datetime(new["date"]).dt.strftime("%Y-%m-%d")
+    if path.exists():
+        old = pd.read_csv(path, dtype={"product_id": str, "store": str, "date": str, "source": str})
+        merged = pd.concat([old, new], ignore_index=True)
+    else:
+        old, merged = None, new
+    keys = ["product_id", "store", "date", "source"]
+    merged = merged.drop_duplicates(keys, keep="last").sort_values(["date"] + keys[:2])
+    path.parent.mkdir(parents=True, exist_ok=True)
+    merged.to_csv(path, index=False)
+    return len(merged) - (0 if old is None else len(old))
+
+
+def read_csv(path: str | Path) -> pd.DataFrame:
+    df = pd.read_csv(path, dtype={"product_id": str, "store": str, "source": str})
+    df["date"] = pd.to_datetime(df["date"])
+    return df[COLUMNS]

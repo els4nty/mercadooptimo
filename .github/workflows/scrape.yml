@@ -1,0 +1,39 @@
+name: Recolección diaria de precios
+
+# Descarga los precios de config/targets.csv y los agrega a data/history/precios.csv.
+# El CSV versionado es la historia real que usarán los modelos de predicción.
+on:
+  schedule:
+    - cron: "17 11 * * *"   # 6:17 a. m. hora de Colombia (UTC-5)
+  workflow_dispatch:        # también se puede lanzar a mano desde la pestaña Actions
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - name: Recolectar precios
+        run: mercadooptimo --db /tmp/precios.db scrape --csv data/history/precios.csv --delay 3
+      - name: Guardar historial
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/history/precios.csv
+          if git diff --cached --quiet; then
+            echo "Sin precios nuevos"
+          else
+            git commit -m "Precios del $(date -u +%Y-%m-%d)"
+            git push
+          fi

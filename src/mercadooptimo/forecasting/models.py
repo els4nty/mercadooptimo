@@ -5,8 +5,11 @@
 * ARIMAForecaster: ARIMA de statsmodels sobre log-precio, con selección de
   orden por AIC en una rejilla pequeña.
 
-La LSTM (PyTorch/Keras) se agregará como otro `Forecaster` con la misma
-interfaz `fit(series) -> self` / `predict(h) -> np.ndarray`.
+* LSTMForecaster (módulo `lstm`, requiere PyTorch): red recurrente sobre
+  retornos logarítmicos.
+
+Todos comparten la interfaz `fit(series) -> self` / `predict(h) -> np.ndarray`;
+los que pueden incorporar datos nuevos sin reentrenar implementan `update`.
 """
 
 from __future__ import annotations
@@ -119,7 +122,11 @@ FORECASTERS = {
 
 
 def get_forecaster(name: str, **kwargs) -> Forecaster:
+    if name == "lstm":  # import diferido: PyTorch es opcional
+        from mercadooptimo.forecasting.lstm import LSTMForecaster
+
+        return LSTMForecaster(**kwargs)
     try:
         return FORECASTERS[name](**kwargs)
     except KeyError:
-        raise ValueError(f"Modelo desconocido '{name}'. Opciones: {sorted(FORECASTERS)}") from None
+        raise ValueError(f"Modelo desconocido '{name}'. Opciones: {sorted(FORECASTERS) + ['lstm']}") from None

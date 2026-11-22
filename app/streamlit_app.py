@@ -14,6 +14,13 @@ from mercadooptimo.data.synthetic import generate_prices
 from mercadooptimo.pipeline import recommend
 
 DB_PATH = Path(__file__).resolve().parents[1] / "data" / "precios.db"
+MODELS = ["arima", "naive", "seasonal_naive"]
+try:  # la LSTM solo aparece si PyTorch está instalado
+    import torch  # noqa: F401
+
+    MODELS.append("lstm")
+except ImportError:
+    pass
 
 st.set_page_config(page_title="MercadoÓptimo", layout="wide")
 st.title("MercadoÓptimo")
@@ -38,7 +45,7 @@ st.sidebar.info(f"Datos: precios {sources} · {len(wide)} semanas · última: {w
 with st.sidebar:
     st.header("Parámetros")
     budget = st.number_input("Presupuesto (COP)", min_value=0, value=150_000, step=5_000)
-    model = st.selectbox("Modelo de predicción", ["arima", "naive", "seasonal_naive"])
+    model = st.selectbox("Modelo de predicción", MODELS)
     limit = st.checkbox("Limitar número de tiendas")
     max_stores = st.slider("Máximo de tiendas", 1, 4, 2) if limit else None
 

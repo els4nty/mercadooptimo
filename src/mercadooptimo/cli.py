@@ -102,6 +102,14 @@ def cmd_scrape(args):
         return
     n = db.save_prices(db.connect(args.db), df)
     print(f"{n} precios guardados en {args.db}")
+    if args.csv:
+        added = db.append_csv(df, args.csv)
+        print(f"{added} filas nuevas en {args.csv}")
+
+
+def cmd_import_csv(args):
+    n = db.save_prices(db.connect(args.db), db.read_csv(args.file))
+    print(f"{n} precios de {args.file} guardados en {args.db}")
 
 
 def cmd_eval_forecast(args):
@@ -181,10 +189,16 @@ def main(argv=None):
     s.add_argument("--stores", nargs="*", help="jumbo olimpica (por defecto, todas las del archivo)")
     s.add_argument("--delay", type=float, default=3.0, help="segundos entre peticiones")
     s.add_argument("--dry-run", action="store_true", help="muestra los precios sin guardarlos")
+    s.add_argument("--csv", help="además, agrega los precios a este CSV de historial (p. ej. data/history/precios.csv)")
     s.set_defaults(func=cmd_scrape)
 
+    s = sub.add_parser("import-csv", help="carga un CSV de historial (product_id,store,date,price,source) a la base")
+    s.add_argument("file", nargs="?", default="data/history/precios.csv")
+    s.set_defaults(func=cmd_import_csv)
+
     s = sub.add_parser("evaluate-forecast", help="RMSE/MAPE de los modelos con partición temporal")
-    s.add_argument("--models", nargs="+", default=["naive", "seasonal_naive", "arima"])
+    s.add_argument("--models", nargs="+", default=["naive", "seasonal_naive", "arima"],
+                   help="naive, seasonal_naive, arima, lstm (lstm requiere PyTorch)")
     s.add_argument("--products", nargs="*")
     s.add_argument("--test-frac", type=float, default=0.15)
     s.add_argument("--out")

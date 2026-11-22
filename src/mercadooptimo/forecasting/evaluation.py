@@ -63,7 +63,8 @@ def compare_models(
     records = []
     for col in wide.columns:
         for m in models:
-            bt = backtest_series(wide[col], m, test_size, refit_every=refit_every if m == "arima" else 1)
+            costly = m in ("arima", "lstm")  # se reentrenan cada `refit_every` semanas y se actualizan entre medio
+            bt = backtest_series(wide[col], m, test_size, refit_every=refit_every if costly else 1)
             records.append(
                 {
                     "product_id": col[0],
